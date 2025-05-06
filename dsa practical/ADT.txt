@@ -1,0 +1,110 @@
+#include <iostream>
+#include <list>
+#include <string>
+using namespace std;
+
+const int TABLE_SIZE = 10;
+
+class HashTable {
+private:
+    list<pair<string, string>> table[TABLE_SIZE]; // key: word, value: meaning
+
+    int hashFunction(string key) {
+        int sum = 0;
+        for (char ch : key)
+            sum += ch; // ASCII sum
+        return sum % TABLE_SIZE;
+    }
+
+public:
+    void insert(string word, string meaning) {
+        int index = hashFunction(word);
+        for (auto& pair : table[index]) {
+            if (pair.first == word) {
+                cout << "Word already exists. Updating meaning.\n";
+                pair.second = meaning; // Replace meaning
+                return;
+            }
+        }
+        table[index].emplace_back(word, meaning); // Insert new word
+        cout << "Word inserted successfully.\n";
+    }
+
+    void search(string word) {
+        int index = hashFunction(word);
+        for (const auto& pair : table[index]) {
+            if (pair.first == word) {
+                cout << "Found: " << pair.first << " -> " << pair.second << "\n";
+                return;
+            }
+        }
+        cout << "Word not found.\n";
+    }
+
+    void remove(string word) {
+        int index = hashFunction(word);
+        for (auto it = table[index].begin(); it != table[index].end(); ++it) {
+            if (it->first == word) {
+                table[index].erase(it);
+                cout << "Word deleted successfully.\n";
+                return;
+            }
+        }
+        cout << "Word not found.\n";
+    }
+
+    void display() {
+        cout << "\n--- Dictionary Contents ---\n";
+        for (int i = 0; i < TABLE_SIZE; ++i) {
+            cout << "[" << i << "]: ";
+            for (const auto& pair : table[i]) {
+                cout << "(" << pair.first << ": " << pair.second << ") -> ";
+            }
+            cout << "NULL\n";
+        }
+    }
+};
+
+int main() {
+    HashTable dict;
+    int choice;
+    string word, meaning;
+
+    do {
+        cout << "\n--- Dictionary Menu ---\n";
+        cout << "1. Insert\n2. Search\n3. Delete\n4. Display\n5. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+        cin.ignore(); // to handle newline
+
+        switch (choice) {
+            case 1:
+                cout << "Enter word: ";
+                getline(cin, word);
+                cout << "Enter meaning: ";
+                getline(cin, meaning);
+                dict.insert(word, meaning);
+                break;
+            case 2:
+                cout << "Enter word to search: ";
+                getline(cin, word);
+                dict.search(word);
+                break;
+            case 3:
+                cout << "Enter word to delete: ";
+                getline(cin, word);
+                dict.remove(word);
+                break;
+            case 4:
+                dict.display();
+                break;
+            case 5:
+                cout << "Exiting.\n";
+                break;
+            default:
+                cout << "Invalid choice.\n";
+        }
+    } while (choice != 5);
+
+    return 0;
+}
